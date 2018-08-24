@@ -716,18 +716,24 @@ function Catapulta() {
 	var invcounter = 0;
 	this.draw = function() {
 		//context.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
-		this.context.drawImage(imageRepository.catapulta,this.sx+64,0,this.swidth,this.height, this.x, this.y,this.swidth,this.height);
 		if (counter >=fireRate) {
 			this.context.drawImage(imageRepository.catapulta,this.sx,0,this.swidth,this.height, this.x, this.y,this.swidth,this.height);
 			var ricex= this.x+this.swidth/2-imageRepository.rice.width/2;
 			this.context.drawImage(imageRepository.rice,ricex,this.y+this.height-imageRepository.rice.height);
 		}
+		else if( counter <= 10){
+			this.context.drawImage(imageRepository.catapulta,this.sx+64,0,this.swidth,this.height, this.x, this.y,this.swidth,this.height);	
+		}
+		else{
+			this.context.drawImage(imageRepository.catapulta,this.sx,0,this.swidth,this.height, this.x, this.y,this.swidth,this.height);
+		}
 	};
 	this.move = function() {	
 		counter++;
+		this.context.clearRect(this.x, this.y, this.width+30, this.height+30);
 		if (!this.isColliding) {
 			//clear the catapulta
-			this.context.clearRect(this.x, this.y, this.width+30, this.height+30);
+			
 			// Keep player within the screen			
 			if (this.y >= this.canvasHeight - this.height){
 					this.y = this.canvasHeight - this.height;
