@@ -1,0 +1,84 @@
+<html>
+	<head>
+		<title>Lauriels of Glory ~Deluxe~</title>
+		<style>
+			@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+			body{
+				align:center;
+				background-color:#000;
+			}
+			canvas {
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				background: transparent;
+			}
+			#background {
+				z-index: -10;
+			}
+			#lauriels{
+				z-index: 2;
+			}
+			#bullets {
+				z-index: 3;
+			}
+			#catapulta {
+				z-index: 1;
+			}
+			#overlay{
+				z-index: 10;
+			}
+			#game-board{
+				color:#FFF;
+				position:absolute;
+				top: 485px;
+				left: 0px;
+				border: 2px solid;
+				width: 634px;
+				font-family: 'Open Sans', sans-serif;
+				font-weight:bold;
+			}
+			#game-board div{
+				float:left;
+				margin-left:20px;
+				margin-top:20px;
+				margin-bottom:20px;
+			}
+			#life{
+				width:320px;
+				background-image: linear-gradient(to right, red , yellow);
+				background-repeat: no-repeat;
+				background-size: 100%;
+				border: solid 1px;
+				margin-top:30px !important;
+			}
+			.underscore{
+				text-decoration: underline;
+			}
+			#rice img{
+				margin-left:-20px;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="background" height="480" width="640"></canvas>
+		<canvas id="catapulta" height="480" width="640"></canvas>
+		<canvas id="bullets" height="480" width="640"></canvas>
+		<canvas id="lauriels" height="480" width="640"></canvas>
+		<canvas id="overlay" height="480" width="640"></canvas>
+		<div id="game-board">
+			<div>
+				<span class="underscore">SCORE</span></br>
+				<span id="score">0</span>
+			</div>
+			<div id="life">LIFE</div>
+			<div id="rice">
+				<img src="assets/sprites/guirice.png"/>
+				<img src="assets/sprites/guirice.png"/>
+				<img src="assets/sprites/guirice.png"/>
+				<img src="assets/sprites/guirice.png"/>
+				<img src="assets/sprites/guirice.png"/></div>
+		</div>
+		<script src="penguin-engine.js"></script>
+	</body>
+</html>
