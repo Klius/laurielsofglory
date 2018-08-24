@@ -742,8 +742,8 @@ function Catapulta() {
 			if(this.y <= 0){
 					this.y = 0;
 			}
-			if (this.x >= this.canvasWidth - this.width/2){
-					this.x = this.canvasWidth - this.width/2;
+			if (this.x >= this.canvasWidth - this.width){
+					this.x = this.canvasWidth - this.width;
 					
 			}
 			if (this.x <= 0){ 
