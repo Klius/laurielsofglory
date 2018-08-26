@@ -37,6 +37,7 @@
 				width: 634px;
 				font-family: 'Open Sans', sans-serif;
 				font-weight:bold;
+				height:90px;
 			}
 			#game-board div{
 				float:left;
@@ -55,8 +56,17 @@
 			.underscore{
 				text-decoration: underline;
 			}
+			.gameover{
+				animation-fill-mode: forwards;
+				animation-name: gameover;
+    			animation-duration: 2s;
+			}
 			#rice img{
 				margin-left:-20px;
+			}
+			@keyframes gameover {
+				from {background-color: rgba(0,0,0,0);}
+				to {background-color: rgba(0,0,0,1);}
 			}
 		</style>
 	</head>
@@ -79,6 +89,7 @@
 				<img src="assets/sprites/guirice.png"/>
 				<img src="assets/sprites/guirice.png"/></div>
 		</div>
+		<script src="beepbox.js"></script>
 		<script src="penguin-engine.js"></script>
 	</body>
 </html>

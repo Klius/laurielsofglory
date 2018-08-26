@@ -6,6 +6,8 @@ var game = new Game();
 function init() {
 	if(game.init())
 	game.start();
+	var synth = new beepbox.Synth("6n31s0kbl00e05t7m0a7g0fj7i0r1o3210T0w1f1d1c0h3v0T0w4f1d1c0h0v0T0w1f1d1c0h0v0T2w1d1v0b4x834h4h4h414z0h4h4h4h4h4h4h4h4h4h4h4h4h4h4p21BFzP0Mt9HRkRkxFcYdsB1SOgVwIL9S0FzNhhhhhhhhhhhhhhhEwpeGCGGG4GGFGFGGQkRkll1G3jjg6Ed802C9MrqgQkxF3ji6yA80");
+	synth.play();
 }
 
 /**
@@ -195,15 +197,20 @@ function QuadTree(boundBox, lvl) {
 	this.note = new Image();
 	this.laura = new Image();
 	this.laser = new Image();
+	this.gameover = new Image();
     	
 	// Ensure all images have loaded before starting the game
-	var numImages = 7;
+	var numImages = 8;
 	var numLoaded = 0;
 	function imageLoaded() {
 		numLoaded++;
 		if (numLoaded === numImages) {
 			window.init();
 		}
+	}
+	
+	this.gameover.onload = function() {
+		imageLoaded();
 	}
 	this.background.onload = function() {
 		imageLoaded();
@@ -235,6 +242,7 @@ function QuadTree(boundBox, lvl) {
 	this.laura.src = "assets/sprites/laura.png";
 	this.note.src = "assets/sprites/note.png";
 	this.laser.src = "assets/sprites/laser.png";
+	this.gameover.src = "assets/sprites/gameover.png";
 }
 
 /**
@@ -496,6 +504,13 @@ function Enemies(){
 			this.enemyPool.push(enemy);
 	}
 }
+function startPool(){
+
+}
+function letter(){
+	this.draw = function(){
+	}
+}
 /**
  * Custom Pool object. Holds Bullet objects to be managed to prevent
  * garbage collection.
@@ -709,7 +724,6 @@ function Catapulta() {
 	this.life = this.maxlife;
 	this.sx = 0;
 	this.swidth = 64;
-	this.lifes = 3;
 	var fireRate = 30;
 	var counter = fireRate;
 	var invFrames = 15;
@@ -770,9 +784,19 @@ function Catapulta() {
 		this.draw();
 		
 	};
-	
+	/*
+	* Resets player position, life et all 
+	*/
+	this.reset = function(){
+		this.context.clearRect(this.x, this.y, this.width+30, this.height+30);
+		this.bulletPool = new Pool(5);
+		this.bulletPool.init("rice");
+		this.life = this.maxlife;
+		this.x = this.canvasWidth/2 - this.width/2;
+		this.y = this.canvasHeight - this.height;
+	};
 	/* 
-	 * Fires two bullets
+	 * Fires bullets
 	 */
 	this.fire = function() {
 		if (counter >=fireRate){
@@ -789,12 +813,16 @@ Catapulta.prototype = new Drawable();
  * the game.
  */
 function Game() {
+	this.states = ["start","loop","gameover"]
+	this.currentState = this.states[0];
+	this.overCounter = 0;
+	this.overLock = 120;
 	this.messages = function(){
 		//GameOverMessage
 		var gameover = new Overlay();
 		gameover.init(this.overlayCanvas.width/2 -120/2,this.overlayCanvas.height/2-30,120,30,0);
 		gameover.letter = "Roasted";
-		if(this.catapulta.isDead && this.clicked){
+		if(this.catapulta.isDead){
 			gameover.hide = false;
 			gameover.draw();
 			
@@ -808,9 +836,13 @@ function Game() {
 
 	};
 	this.readInput = function(){
-		if (this.catapulta.isDead){
-			if (KEY_STATUS.space){
-				this.reset();
+		if (this.currentState==this.states[2]){
+			this.overCounter++;
+			if (this.overCounter > this.overLock){
+				if (KEY_STATUS.space){
+					this.reset();
+				}
+				this.overCounter = 0;
 			}
 		}
 		else{
@@ -830,11 +862,38 @@ function Game() {
 				this.catapulta.fire();
 			}
 		}
+		if (this.currentState == "start" ){
+			if (KEY_STATUS.a){
+				this.catapulta.reset();
+				this.currentState = this.states[1];
+			}
+		}
 	};
+	this.drawGameover = function(){
+		if (this.overlayCanvas.classList.length==0){
+			this.overlayCanvas.classList.add("gameover");
+		}
+		this.overlayContext.drawImage( imageRepository.gameover,
+									  this.overlayCanvas.width/2-imageRepository.gameover.width/2,
+									  this.overlayCanvas.height/2-imageRepository.gameover.height/2);
+		
+	}
 	this.reset = function () {
-		this.catapulta.isDead = false;
-		this.catapulta.sx = 0;
-		this.catapulta.isColliding = false;		
+		this.catapulta = new Catapulta();
+		// Set the catapulta to start in the middle of the canvas
+		var shipStartX = this.playerCanvas.width/2 - imageRepository.catapulta.width/2;
+		var shipStartY = this.playerCanvas.height-imageRepository.catapulta.height/2;
+		this.catapulta.init(shipStartX, shipStartY, 64,
+			               imageRepository.catapulta.height);
+		/********************************ENEMY TEST**************************************************/
+		this.enemies = new Enemies();
+		this.enemies.init();
+		//return to title and remove overlay veil
+		this.currentState = this.states[0];
+		this.overlayContext.clearRect(0,0,this.overlayCanvas.width,this.overlayCanvas.height);
+		this.enemyContext.clearRect(0,0,this.overlayCanvas.width,this.overlayCanvas.height);
+		this.playerContext.clearRect(0,0,this.overlayCanvas.width,this.overlayCanvas.height);
+		this.overlayCanvas.classList.remove("gameover");
 	};
 	/*
 	 * Gets canvas information and context and sets up all game
@@ -897,7 +956,7 @@ function Game() {
 			this.catapulta = new Catapulta();
 			// Set the catapulta to start in the middle of the canvas
 			var shipStartX = this.playerCanvas.width/2 - imageRepository.catapulta.width/2;
-			var shipStartY = this.playerCanvas.height-imageRepository.catapulta.height;
+			var shipStartY = this.playerCanvas.height-imageRepository.catapulta.height/2;
 			this.catapulta.init(shipStartX, shipStartY, 64,
 			               imageRepository.catapulta.height);
 			/********************************ENEMY TEST**************************************************/
@@ -971,28 +1030,45 @@ function addScore(score){
  * object.
  */
 function animate() {
-	// Insert objects into quadtree
-	game.quadTree.clear();
-	game.quadTree.insert(game.catapulta);
-	game.quadTree.insert(game.catapulta.bulletPool.getPool());
-	//bullets go here
-	for(i=0;i<game.enemies.enemyPool.length;i++){
-		game.quadTree.insert(game.enemies.enemyPool[i].bulletPool.getPool());
+	if (game.currentState == "start"){
+		//Clear bullets
+		game.bulletContext.clearRect(0, 0, game.enemyCanvas.width, game.enemyCanvas.height);
+		// Animate game objects
+		game.messages();
+		game.background.draw();
+		game.catapulta.move();
+		game.catapulta.bulletPool.animate();
+		game.readInput();
 	}
-	game.quadTree.insert(game.enemies.enemyPool)
-	detectCollision();
+	if(game.currentState == "loop"){
+		// Insert objects into quadtree
+		game.quadTree.clear();
+		game.quadTree.insert(game.catapulta);
+		game.quadTree.insert(game.catapulta.bulletPool.getPool());
+		//bullets go here
+		for(i=0;i<game.enemies.enemyPool.length;i++){
+			game.quadTree.insert(game.enemies.enemyPool[i].bulletPool.getPool());
+		}
+		game.quadTree.insert(game.enemies.enemyPool)
+		detectCollision();
+		//Clear bullets
+		game.bulletContext.clearRect(0, 0, game.enemyCanvas.width, game.enemyCanvas.height);
+		game.background.draw();
+		//ORIELS
+		game.enemies.update();
+		//PLAYER
+		game.catapulta.move();
+		game.catapulta.bulletPool.animate();
+		game.readInput();
+		if (game.catapulta.isDead){
+			game.currentState = game.states[2];
+		}
+	}
+	if (game.currentState == "gameover"){
+		game.drawGameover();
+		game.readInput();
+	}
 	requestAnimFrame( animate );
-	//Clear bullets
-	game.bulletContext.clearRect(0, 0, game.enemyCanvas.width, game.enemyCanvas.height);
-	// Animate game objects
-	game.messages();
-	game.background.draw();
-	//ORIELS
-	game.enemies.update();
-	//PLAYER
-	game.catapulta.move();
-	game.catapulta.bulletPool.animate();
-	game.readInput();
 	updateUI();
 	//game.forn.bulletPool.animate();
 }
@@ -1028,14 +1104,7 @@ KEY_CODES = {
   38: 'up',
   39: 'right',
   40: 'down',
-  74: 'bottomLeft',
-  75: 'bottomMiddle',
-  76: 'bottomRight',
-  65: 'topLeft',
-  83: 'topMiddle',
-  68: 'topRight',
-  84: 'toogleTop',
-  66: 'toogleBottom'
+  65: 'a',
   
 };
 
