@@ -1075,7 +1075,7 @@ function updateUI(){
 //Adds the score to the total!!
 function addScore(score){
 	game.enemyCount += 1;
-	var multiplier = Math.floor(game.enemyCount/10) >= 1 ? Math.floor(game.enemyCount/10) : 1; 
+	var multiplier = 1 + Math.floor(game.enemyCount/10); 
 	game.score += score*multiplier;
 }
 
