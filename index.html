@@ -1,5 +1,6 @@
 <html>
 	<head>
+		<meta charset="UTF-8"> 
 		<title>Lauriels of Glory ~Deluxe~</title>
 		<style>
 			@import url('https://fonts.googleapis.com/css?family=Open+Sans');
@@ -64,6 +65,9 @@
 			#rice img{
 				margin-left:-20px;
 			}
+			#multiplier{
+				font-size:30px;
+			}
 			@keyframes gameover {
 				from {background-color: rgba(0,0,0,0);}
 				to {background-color: rgba(0,0,0,1);}
@@ -78,9 +82,10 @@
 		<canvas id="overlay" height="480" width="640"></canvas>
 		<div id="game-board">
 			<div>
-				<span class="underscore">SCORE</span></br>
+				<span class="underscore">SCORE</span><br>
 				<span id="score">0</span>
 			</div>
+			<div id="multiplier">x1</div>
 			<div id="life">LIFE</div>
 			<div id="rice">
 				<img src="assets/sprites/guirice.png"/>

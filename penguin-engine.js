@@ -6,8 +6,12 @@ var game = new Game();
 function init() {
 	if(game.init())
 	game.start();
-	var synth = new beepbox.Synth("6n31s0kbl00e05t7m0a7g0fj7i0r1o3210T0w1f1d1c0h3v0T0w4f1d1c0h0v0T0w1f1d1c0h0v0T2w1d1v0b4x834h4h4h414z0h4h4h4h4h4h4h4h4h4h4h4h4h4h4p21BFzP0Mt9HRkRkxFcYdsB1SOgVwIL9S0FzNhhhhhhhhhhhhhhhEwpeGCGGG4GGFGFGGQkRkll1G3jjg6Ed802C9MrqgQkxF3ji6yA80");
-	synth.play();
+	game.songs = {"start":"6n31s0kbl00e05t7m0a7g0fj7i0r0o3210T0w1f1d1c0h3v0T0w4f1d1c0h0v0T0w1f1d1c0h0v0T2w1d1v0b4x834h4h4h414z0h4h4h4h4h4h4h4h4h4h4h4h4h4h4p21YFzOC63wuipulAVmi6ANgRUBwurygIocPf8VwaoY9xNAp6hAp6hAp6hAp6hAp78M74YH9OIHaMjaOIDaOsHaV6jBp6lB1G3jAV0qwQw0aoD0Jj0Ad6i2A5ei6z900",
+				  "loop":"6n31s0kbl00e05t7m0a7g0fj7i0r1o3210T0w1f1d1c0h3v0T0w4f1d1c0h0v0T0w1f1d1c0h0v0T2w1d1v0b4x834h4h4h414z0h4h4h4h4h4h4h4h4h4h4h4h4h4h4p21BFzP0Mt9HRkRkxFcYdsB1SOgVwIL9S0FzNhhhhhhhhhhhhhhhEwpeGCGGG4GGFGFGGQkRkll1G3jjg6Ed802C9MrqgQkxF3ji6yA80",
+				  "gameover":"6n31s0kbl00e03t7m1a7g0fj7i0r0o3210T0w1f1d1c0h3v0T0w8f1d1c0h5v0T0w7f1d0c0h5v0T2w0d0v4b000h4h4h4h404x4h4h4h4h4h4h4h4h4h4h4h4h4h4h4p21gFzAo85cekQL2M2Cfaoqm1VgkR-hQOWAr9ahAF6h0FxWai1g2A4CaCE47iaE025c3wQ9yq2A58asxd4I0"
+				 }
+	game.synth = new beepbox.Synth(game.songs[game.currentState]);
+	game.synth.play();
 }
 
 /**
@@ -198,9 +202,9 @@ function QuadTree(boundBox, lvl) {
 	this.laura = new Image();
 	this.laser = new Image();
 	this.gameover = new Image();
-    	
+    this.start = new Image();	
 	// Ensure all images have loaded before starting the game
-	var numImages = 8;
+	var numImages = 9;
 	var numLoaded = 0;
 	function imageLoaded() {
 		numLoaded++;
@@ -208,7 +212,9 @@ function QuadTree(boundBox, lvl) {
 			window.init();
 		}
 	}
-	
+	this.start.onload = function() {
+		imageLoaded();
+	}	
 	this.gameover.onload = function() {
 		imageLoaded();
 	}
@@ -243,6 +249,7 @@ function QuadTree(boundBox, lvl) {
 	this.note.src = "assets/sprites/note.png";
 	this.laser.src = "assets/sprites/laser.png";
 	this.gameover.src = "assets/sprites/gameover.png";
+	this.start.src = "assets/sprites/start.png";
 }
 
 /**
@@ -389,7 +396,6 @@ function Oriel(){
 		}
 		else{
 			this.alive = false
-			addScore(this.score);
 		}
 	}
 	this.fire = function() {
@@ -448,7 +454,6 @@ function Laura(){
 		}
 		else{
 			this.alive = false
-			addScore(this.score);
 		}
 	}
 	this.fire = function() {
@@ -489,6 +494,7 @@ function Enemies(){
 				//console.log(this.enemyPool[i]);
 			}
 			else{
+				addScore(this.enemyPool[i].score);
 				this.enemyPool.splice(i, 1);
 				this.spawnEnemy();
 			}
@@ -504,13 +510,52 @@ function Enemies(){
 			this.enemyPool.push(enemy);
 	}
 }
+/***************************************************************************/
+/* START LETTERS 
+*****************************************************************************/
 function startPool(){
-
+	this.pool = [];
+	this.init = function(){
+		var start = ["s","t","a","r","t"];
+		var x = 150;
+		for (i = 0;i < start.length;i++){
+			var l = new Letter();
+			l.init(x,150,64,64);
+			l.letter = start[i];
+			this.pool.push(l);
+			x += 72;
+		}
+	};
+	this.update = function(){
+		document.getElementById('lauriels').getContext('2d').clearRect(0, 0, 640, 480);
+		for (i=0;i <this.pool.length;i++){
+			if (this.pool[i].alive){
+				this.pool[i].draw();
+			}
+			else{
+				this.pool.splice(i, 1);
+			}
+		} 		
+	};
 }
-function letter(){
+function Letter(){
+	this.type = "enemy";
+	this.collidableWith = "rice";
+	this.isColliding = false;
+	this.alive = true;
+	this.letter = "a";
+	this.coords = {s :0,t:64,a :128, r:192};
 	this.draw = function(){
+		//context.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
+		if (this.isColliding){
+			this.alive = false;
+		}
+		else{
+			this.context.drawImage(imageRepository.start,this.coords[this.letter],0,this.width,this.height,this.x,this.y,this.width,this.height);
+		}
 	}
 }
+Letter.prototype = new Drawable();
 /**
  * Custom Pool object. Holds Bullet objects to be managed to prevent
  * garbage collection.
@@ -780,6 +825,7 @@ function Catapulta() {
 			else{
 				this.isColliding =false;
 			}
+			game.enemyCount = 1;
 		}
 		this.draw();
 		
@@ -816,10 +862,20 @@ function Game() {
 	this.states = ["start","loop","gameover"]
 	this.currentState = this.states[0];
 	this.overCounter = 0;
-	this.overLock = 120;
+	this.overLock = 80;
+	this.enemyCount = 0;
+	this.language = "ca";
+	var dictionary = {	"ca":{
+							"tuto1":"Dispara paquets d'arrós als nuvis!!",
+							"tuto2":"Utilitza ⇦ ⇨ ⇧ ⇩ per moure la catapulta",
+							"tuto3":"Prem espai per llençar paquets d'arrós!!",
+							"over" :"Prem espai per tornar a començar"
+						},
+					  	"es":{},
+					 };
 	this.messages = function(){
 		//GameOverMessage
-		var gameover = new Overlay();
+		/*var gameover = new Overlay();
 		gameover.init(this.overlayCanvas.width/2 -120/2,this.overlayCanvas.height/2-30,120,30,0);
 		gameover.letter = "Roasted";
 		if(this.catapulta.isDead){
@@ -830,8 +886,18 @@ function Game() {
 		else{
 			gameover.hide = true;
 			gameover.draw();
+		}*/
+		var ctx = this.overlayContext;
+		if (this.currentState == "start"){
+			ctx.fillStyle = "white";
+			ctx.font = '20px arial';
+  			ctx.fillText(dictionary[this.language].tuto1,175,300);
+			ctx.fillText(dictionary[this.language].tuto2,175,330);
+			ctx.fillText(dictionary[this.language].tuto3,175,360);
 		}
-		
+		if (this.currentState == "gameover"){
+			ctx.fillText(dictionary[this.language].over,175,360);
+		}
 		//console.log("Clicked:"+this.clicked+"Hide?:"+this.startMessage.hide+" drawed?:"+this.startMessage.drawed+"message:"+this.startMessage.letter);
 
 	};
@@ -841,8 +907,8 @@ function Game() {
 			if (this.overCounter > this.overLock){
 				if (KEY_STATUS.space){
 					this.reset();
+					this.overCounter = 0;
 				}
-				this.overCounter = 0;
 			}
 		}
 		else{
@@ -862,12 +928,6 @@ function Game() {
 				this.catapulta.fire();
 			}
 		}
-		if (this.currentState == "start" ){
-			if (KEY_STATUS.a){
-				this.catapulta.reset();
-				this.currentState = this.states[1];
-			}
-		}
 	};
 	this.drawGameover = function(){
 		if (this.overlayCanvas.classList.length==0){
@@ -876,7 +936,6 @@ function Game() {
 		this.overlayContext.drawImage( imageRepository.gameover,
 									  this.overlayCanvas.width/2-imageRepository.gameover.width/2,
 									  this.overlayCanvas.height/2-imageRepository.gameover.height/2);
-		
 	}
 	this.reset = function () {
 		this.catapulta = new Catapulta();
@@ -885,6 +944,9 @@ function Game() {
 		var shipStartY = this.playerCanvas.height-imageRepository.catapulta.height/2;
 		this.catapulta.init(shipStartX, shipStartY, 64,
 			               imageRepository.catapulta.height);
+		/*LETTERSSSSSSS*/
+		this.letters = new startPool();
+		this.letters.init();
 		/********************************ENEMY TEST**************************************************/
 		this.enemies = new Enemies();
 		this.enemies.init();
@@ -894,6 +956,7 @@ function Game() {
 		this.enemyContext.clearRect(0,0,this.overlayCanvas.width,this.overlayCanvas.height);
 		this.playerContext.clearRect(0,0,this.overlayCanvas.width,this.overlayCanvas.height);
 		this.overlayCanvas.classList.remove("gameover");
+		changeSong();
 	};
 	/*
 	 * Gets canvas information and context and sets up all game
@@ -949,6 +1012,9 @@ function Game() {
 			Laura.prototype.context = this.enemyContext;
 			Laura.prototype.canvasWidth = this.enemyCanvas.width;
 			Laura.prototype.canvasHeight = this.enemyCanvas.height;
+			Letter.prototype.context = this.enemyContext;
+			Letter.prototype.canvasWidth = this.enemyCanvas.width;
+			Letter.prototype.canvasHeight = this.enemyCanvas.height;
 			// Initialize the background object
 			this.background = new Background();
 			this.background.init(0,0); // Set draw point to 0,0
@@ -962,15 +1028,9 @@ function Game() {
 			/********************************ENEMY TEST**************************************************/
 			this.enemies = new Enemies();
 			this.enemies.init();
-			//AUDIO
-			this.backgroundAudio = new Audio("audio/loop-2.ogg");
-			this.backgroundAudio.loop = true;
-			this.backgroundAudio.volume = .25;
-			this.backgroundAudio.load();
-			
-			//check if audio is loaded
-			this.checkAudio = window.setInterval(function(){checkReadyState()},1000);
-			
+			/*LETTERSSSSSSS*/
+			this.letters = new startPool();
+			this.letters.init();
 			//Start the quadtree
 			this.quadTree = new QuadTree({x:0,y:0,width:this.bulletCanvas.width,height:this.bulletCanvas.height});
 			
@@ -984,28 +1044,19 @@ function Game() {
 	// Start the animation loop
 	this.start = function() {
 		this.catapulta.draw();
-		this.backgroundAudio.play();
 		this.messages();
 		animate();
 	};
-	/*
-	*Function that shows everything related to gameover
-	*/
-	this.gamaOvar = function (){
-		
-	};
 }
-
-/**
- * Ensure the game sound has loaded before starting the game
- */
-function checkReadyState() {
-	if ( game.backgroundAudio.readyState === 4) {
-		window.clearInterval(game.checkAudio);
-		game.start();
-	}
+/*
+*Changes the Background audio!
+*/
+function changeSong(){
+	game.synth.setSong(game.songs[game.currentState]);
 }
-
+/*
+* 
+*/
 function updateUI(){
 	document.getElementById("score").innerHTML=game.score;
 	var lifepercent = game.catapulta.life/game.catapulta.maxlife;
@@ -1017,10 +1068,15 @@ function updateUI(){
 		str += img;
 	}
 	document.getElementById("rice").innerHTML=str;
+	var multiplier = Math.floor(game.enemyCount/10) >= 1 ? Math.floor(game.enemyCount/10) : 1; 
+	document.getElementById("multiplier").innerHTML = "x"+multiplier;
 	//console.log(bullets);
 }
+//Adds the score to the total!!
 function addScore(score){
-	game.score += score;
+	game.enemyCount += 1;
+	var multiplier = Math.floor(game.enemyCount/10) >= 1 ? Math.floor(game.enemyCount/10) : 1; 
+	game.score += score*multiplier;
 }
 
 /**
@@ -1033,12 +1089,25 @@ function animate() {
 	if (game.currentState == "start"){
 		//Clear bullets
 		game.bulletContext.clearRect(0, 0, game.enemyCanvas.width, game.enemyCanvas.height);
+		game.quadTree.clear();
+		game.quadTree.insert(game.catapulta.bulletPool.getPool());
+		game.quadTree.insert(game.letters.pool);
+		detectCollision();
 		// Animate game objects
 		game.messages();
 		game.background.draw();
+		game.letters.update();
 		game.catapulta.move();
 		game.catapulta.bulletPool.animate();
 		game.readInput();
+		//Start the game
+		if (game.letters.pool == 0){
+			game.overlayContext.clearRect(0,0,640,480);
+			game.currentState = game.states[1];
+			game.catapulta.reset();
+			game.score = 0;
+			changeSong();
+		}
 	}
 	if(game.currentState == "loop"){
 		// Insert objects into quadtree
@@ -1062,9 +1131,11 @@ function animate() {
 		game.readInput();
 		if (game.catapulta.isDead){
 			game.currentState = game.states[2];
+			changeSong();
 		}
 	}
 	if (game.currentState == "gameover"){
+		game.messages();
 		game.drawGameover();
 		game.readInput();
 	}
